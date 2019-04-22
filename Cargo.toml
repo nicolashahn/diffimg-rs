@@ -1,0 +1,11 @@
+[package]
+name = "diffimg_rs"
+version = "0.1.0"
+authors = ["Nicolas Hahn <nicolas@stonespring.org>"]
+edition = "2018"
+
+[dependencies]
+image = "*"
+clap = "^2"
+#docopt = "1"
+#serde = { version = "1", features = ["derive"] }
