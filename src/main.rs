@@ -1,4 +1,7 @@
 extern crate clap;
+
+use std::process::exit;
+
 use clap::{App, Arg};
 
 use diffimg_rs::Config;
@@ -41,50 +44,18 @@ fn main() {
         )
         .get_matches();
 
-    // We're relying on clap to correctly validate all args so we don't need to use Result here
+    // We're relying on clap to correctly validate all args,
+    // so we shouldn't need to use Result here
     let config = Config::from_clap_matches(&matches);
 
-    if let Err(msg) = diffimg_rs::run(config) {
-        println!("Failed to diff images, error: {}", msg);
+    match diffimg_rs::calculate_diff(config) {
+        Ok(ratio) => {
+            println!("{}", ratio);
+            exit(0)
+        }
+        Err(msg) => {
+            println!("Error: {}", msg);
+            exit(1)
+        }
     }
 }
-
-// using docopt instead of clap
-/*
-use docopt::Docopt;
-use serde::Deserialize;
-
-const USAGE: &'static str = "
-diffimg_rs - Calculate the percent/ratio difference of an image, or generate a diff image.
-
-Usage:
-    diffimg_rs <im1> <im2> [-r/--ratio] [-d/--delete] [--filename=<name>]
-    diffimg_rs (-h | --help)
-    diffimg_rs --version
-
-Options:
-    -h --help               Show this screen.
-    --version               Show version.
-    -r --ratio              Output a ratio from 0 to 1 instead of a percentage.
-    -d --delete             Delete the diff image produced for the calculation.
-    --filename=<filename>   The filename to save the diff image as (unless --delete)
-                            is passed. (default: diff_img.png)
-
-";
-
-#[derive(Debug, Deserialize)]
-pub struct Args {
-    pub arg_im1: String,
-    pub arg_im2: String,
-    pub flag_ratio: bool,
-    pub flag_delete: bool,
-    pub flag_filename: String,
-}
-
-fn main() {
-    let args: Args = Docopt::new(USAGE)
-        .and_then(|d| d.deserialize())
-        .unwrap_or_else(|e| e.exit());
-    println!("{:?}", args);
-}
-*/
