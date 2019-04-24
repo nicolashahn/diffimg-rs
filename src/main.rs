@@ -10,7 +10,7 @@ fn main() {
     let matches = App::new("diffimg")
         .version("1.0")
         .author("Nicolas Hahn <nicolas@stonespring.org>")
-        .about("Calculate the percent/ratio difference of an image, or generate a diff image.")
+        .about("Calculate the ratio difference of an image, or generate a diff image.")
         .arg(
             Arg::with_name("image1")
                 .help("First image to diff")
@@ -24,20 +24,8 @@ fn main() {
                 .required(true),
         )
         .arg(
-            Arg::with_name("ratio")
-                .help("Output a ratio instead of a percentage")
-                .short("r")
-                .long("ratio"),
-        )
-        .arg(
-            Arg::with_name("delete")
-                .help("Output a ratio instead of a percentage")
-                .short("d")
-                .long("delete"),
-        )
-        .arg(
             Arg::with_name("filename")
-                .help("Filename to save the diff file as")
+                .help("If present, save a diff image to this filename. Currently, only .png is supported.")
                 .short("f")
                 .long("filename")
                 .takes_value(true),
