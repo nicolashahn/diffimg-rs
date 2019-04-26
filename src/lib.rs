@@ -91,16 +91,17 @@ pub fn create_diff_image(
     image2: DynamicImage,
     filename: &str,
 ) -> Result<(), String> {
+    let w = image1.width();
+    let h = image1.height();
+
     let mut diffimg = match image1.color() {
-        image::ColorType::RGB(_) => image::DynamicImage::new_rgb8(image1.width(), image1.height()),
-        image::ColorType::RGBA(_) => {
-            image::DynamicImage::new_rgba8(image1.width(), image1.height())
-        }
+        image::ColorType::RGB(_) => image::DynamicImage::new_rgb8(w, h),
+        image::ColorType::RGBA(_) => image::DynamicImage::new_rgba8(w, h),
         _ => return Err(format!("color mode {:?} not yet supported", image1.color())),
     };
 
-    for y in 0..diffimg.height() {
-        for x in 0..diffimg.width() {
+    for x in 0..w {
+        for y in 0..h {
             let mut rgba = [0; 4];
             for c in 0..4 {
                 rgba[c] = abs_diff(
