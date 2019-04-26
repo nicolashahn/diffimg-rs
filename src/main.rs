@@ -25,7 +25,7 @@ fn main() {
         )
         .arg(
             Arg::with_name("filename")
-                .help("If present, save a diff image to this filename. Currently, only .png is supported.")
+                .help("If present, save a diff image to this filename.")
                 .short("f")
                 .long("filename")
                 .takes_value(true),
