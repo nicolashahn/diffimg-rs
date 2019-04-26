@@ -35,15 +35,8 @@ fn main() {
     // We're relying on clap to correctly validate all args,
     // so we shouldn't need to use Result here
     let config = Config::from_clap_matches(&matches);
-
-    match diffimg_rs::calculate_diff(config) {
-        Ok(ratio) => {
-            println!("{}", ratio);
-            exit(0)
-        }
-        Err(msg) => {
-            println!("Error: {}", msg);
-            exit(1)
-        }
-    }
+    if let Err(msg) = diffimg_rs::run(config) {
+        println!("Error: {:?}", msg);
+        exit(1);
+    };
 }
