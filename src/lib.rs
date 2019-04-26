@@ -117,7 +117,6 @@ pub fn create_diff_image(
     if let Err(msg) = diffimg.save(filename) {
         return Err(msg.to_string());
     }
-    println!("Wrote diff image to {}", filename);
 
     Ok(())
 }
@@ -129,7 +128,13 @@ pub fn run(config: Config) -> Result<(), String> {
     validate_image_compatibility(&image1, &image2)?;
 
     match config.filename {
-        Some(filename) => create_diff_image(image1, image2, filename),
+        Some(filename) => match create_diff_image(image1, image2, filename) {
+            Ok(_) => {
+                println!("Wrote diff image to {}", filename);
+                Ok(())
+            }
+            Err(msg) => Err(msg),
+        },
         None => match calculate_diff(image1, image2) {
             Ok(ratio) => {
                 println!("{}", ratio);
