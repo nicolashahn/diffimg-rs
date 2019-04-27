@@ -42,6 +42,14 @@ fn abs_diff(x: u8, y: u8) -> u8 {
     return large - small;
 }
 
+#[test]
+fn test_abs_diff() {
+    assert_eq!(abs_diff(5, 8), 3);
+    assert_eq!(abs_diff(8, 5), 3);
+    assert_eq!(abs_diff(11, 11), 0);
+    assert_eq!(abs_diff(0, 255), 255);
+}
+
 /// Return the image from the file path, or throw an error
 fn safe_load_image(raw_path: &str) -> Result<DynamicImage, String> {
     let path = &Path::new(raw_path);
