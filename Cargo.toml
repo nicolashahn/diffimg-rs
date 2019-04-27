@@ -1,5 +1,5 @@
 [package]
-name = "diffimg-rs"
+name = "diffimg"
 version = "0.1.0"
 authors = ["Nicolas Hahn <nicolas@stonespring.org>"]
 edition = "2018"

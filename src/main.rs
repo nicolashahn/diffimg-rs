@@ -4,7 +4,7 @@ use std::process::exit;
 
 use clap::{App, Arg};
 
-use diffimg_rs::Config;
+use diffimg::Config;
 
 fn main() {
     let matches = App::new("diffimg")
@@ -35,7 +35,7 @@ fn main() {
     // We're relying on clap to correctly validate all args,
     // so we shouldn't need to use Result here
     let config = Config::from_clap_matches(&matches);
-    if let Err(msg) = diffimg_rs::run(config) {
+    if let Err(msg) = diffimg::run(config) {
         println!("Error: {:?}", msg);
         exit(1);
     };

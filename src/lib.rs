@@ -85,7 +85,7 @@ pub fn calculate_diff(image1: DynamicImage, image2: DynamicImage) -> Result<f64,
     Ok(ratio)
 }
 
-/// Create an image that is the difference of the two images given
+/// Create an image that is the difference of the two images given, and write to the given filename
 pub fn create_diff_image(
     image1: DynamicImage,
     image2: DynamicImage,
@@ -94,7 +94,7 @@ pub fn create_diff_image(
     let w = image1.width();
     let h = image1.height();
 
-    let mut diffimg = match image1.color() {
+    let mut diff = match image1.color() {
         image::ColorType::RGB(_) => image::DynamicImage::new_rgb8(w, h),
         image::ColorType::RGBA(_) => image::DynamicImage::new_rgba8(w, h),
         _ => return Err(format!("color mode {:?} not yet supported", image1.color())),
@@ -110,11 +110,11 @@ pub fn create_diff_image(
                 );
             }
             let new_pix = image::Pixel::from_slice(&rgba);
-            diffimg.put_pixel(x, y, *new_pix);
+            diff.put_pixel(x, y, *new_pix);
         }
     }
 
-    if let Err(msg) = diffimg.save(filename) {
+    if let Err(msg) = diff.save(filename) {
         return Err(msg.to_string());
     }
 

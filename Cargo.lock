@@ -106,7 +106,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "diffimg-rs"
+name = "diffimg"
 version = "0.1.0"
 dependencies = [
  "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
