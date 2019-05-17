@@ -30,16 +30,10 @@ impl<'a> Config<'a> {
 
 /// abs(x - y) for u8
 fn abs_diff(x: u8, y: u8) -> u8 {
-    let large: u8;
-    let small: u8;
     if x > y {
-        large = x;
-        small = y;
-    } else {
-        large = y;
-        small = x;
+        return x - y;
     }
-    return large - small;
+    return y - x;
 }
 
 #[test]
