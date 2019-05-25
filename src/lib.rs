@@ -75,13 +75,12 @@ fn validate_image_compatibility(
 /// Return a difference ratio between 0 and 1 for the two images
 pub fn calculate_diff(image1: DynamicImage, image2: DynamicImage) -> Result<f64, String> {
     // All color types wrap an 8-bit value for each channel
-    let max_val = u32::pow(2, 8) - 1;
-    // u32 can handle up to 2^16 x 2^16 pixel images
-    let mut diffsum: u32 = 0;
+    let max_val = u64::pow(2, 8) - 1;
+    let mut diffsum: u64 = 0;
     for (&p1, &p2) in image1.raw_pixels().iter().zip(image2.raw_pixels().iter()) {
-        diffsum += u32::from(abs_diff(p1, p2));
+        diffsum += u64::from(abs_diff(p1, p2));
     }
-    let total_possible = max_val * image1.raw_pixels().len() as u32;
+    let total_possible = max_val * image1.raw_pixels().len() as u64;
     let ratio = diffsum as f64 / total_possible as f64;
 
     Ok(ratio)
