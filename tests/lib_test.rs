@@ -15,8 +15,8 @@ mod tests {
         let image1 = image::open(MARIO_CS).unwrap();
         let image2 = image::open(MARIO_NODE).unwrap();
         assert_eq!(
-            Ok(0.007319618135968298),
-            diffimg::calculate_diff(image1, image2)
+            0.007319618135968298,
+            diffimg::calculate_diff_ratio(image1, image2)
         )
     }
 

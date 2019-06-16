@@ -73,7 +73,7 @@ fn validate_image_compatibility(
 }
 
 /// Return a difference ratio between 0 and 1 for the two images
-pub fn calculate_diff(image1: DynamicImage, image2: DynamicImage) -> Result<f64, String> {
+pub fn calculate_diff_ratio(image1: DynamicImage, image2: DynamicImage) -> f64 {
     // All color types wrap an 8-bit value for each channel
     let max_val = u64::pow(2, 8) - 1;
     let mut diffsum: u64 = 0;
@@ -83,7 +83,7 @@ pub fn calculate_diff(image1: DynamicImage, image2: DynamicImage) -> Result<f64,
     let total_possible = max_val * image1.raw_pixels().len() as u64;
     let ratio = diffsum as f64 / total_possible as f64;
 
-    Ok(ratio)
+    ratio
 }
 
 /// Create an image that is the difference of the two images given, and write to the given filename
@@ -136,12 +136,10 @@ pub fn run(config: Config) -> Result<(), String> {
             }
             Err(msg) => Err(msg),
         },
-        None => match calculate_diff(image1, image2) {
-            Ok(ratio) => {
-                println!("{}", ratio);
-                Ok(())
-            }
-            Err(msg) => Err(msg),
-        },
+        None => {
+            let ratio = calculate_diff_ratio(image1, image2);
+            println!("{}", ratio);
+            return Ok(());
+        }
     }
 }
