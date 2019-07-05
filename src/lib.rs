@@ -51,10 +51,7 @@ fn safe_load_image(raw_path: &str) -> Result<DynamicImage, String> {
         return Err(format!("Path \"{}\" does not exist", raw_path));
     }
 
-    match image::open(path) {
-        Ok(image) => Ok(image),
-        Err(msg) => Err(format!("{:?}", msg)),
-    }
+    image::open(path).map_err(|msg| format!("{:?}", msg))
 }
 
 /// Check if two images are the same size and color mode
@@ -74,16 +71,12 @@ fn validate_image_compatibility(
 
 /// Return a difference ratio between 0 and 1 for the two images
 pub fn calculate_diff_ratio(image1: DynamicImage, image2: DynamicImage) -> f64 {
+    use std::u8;
     // All color types wrap an 8-bit value for each channel
-    let max_val = u64::pow(2, 8) - 1;
-    let mut diffsum: u64 = 0;
-    for (&p1, &p2) in image1.raw_pixels().iter().zip(image2.raw_pixels().iter()) {
-        diffsum += u64::from(abs_diff(p1, p2));
-    }
-    let total_possible = max_val * image1.raw_pixels().len() as u64;
-    let ratio = diffsum as f64 / total_possible as f64;
+    let total_possible = (u8::MAX as usize * image1.raw_pixels().len()) as f64;
 
-    ratio
+    image1.raw_pixels().into_iter().zip(image2.raw_pixels())
+	.map(|(a, b)| abs_diff(a, b) as u64).sum::<u64>() as f64 / total_possible
 }
 
 /// Create an image that is the difference of the two images given, and write to the given filename
@@ -92,18 +85,17 @@ pub fn create_diff_image(
     image2: DynamicImage,
     filename: &str,
 ) -> Result<(), String> {
+    use image::ColorType::{RGB, RGBA};
+
     let w = image1.width();
     let h = image1.height();
-
-
-
 
     let pix_data : Vec<u8> = image1.raw_pixels().into_iter()
         .zip(image2.raw_pixels()).map(|(p1, p2)| abs_diff(p1, p2)).collect();
 
     let diff = match image1.color() {
-        image::ColorType::RGB(_) => DynamicImage::ImageRgb8(RgbImage::from_raw(w, h, pix_data).unwrap()),
-        image::ColorType::RGBA(_) => DynamicImage::ImageRgba8(RgbaImage::from_raw(w, h, pix_data).unwrap()),
+        RGB(_) => DynamicImage::ImageRgb8(RgbImage::from_raw(w, h, pix_data).unwrap()),
+        RGBA(_) => DynamicImage::ImageRgba8(RgbaImage::from_raw(w, h, pix_data).unwrap()),
         _ => return Err(format!("color mode {:?} not yet supported", image1.color())),
     };
 
@@ -121,17 +113,14 @@ pub fn run(config: Config) -> Result<(), String> {
     validate_image_compatibility(&image1, &image2)?;
 
     match config.filename {
-        Some(filename) => match create_diff_image(image1, image2, filename) {
-            Ok(_) => {
-                println!("Wrote diff image to {}", filename);
-                Ok(())
-            }
-            Err(msg) => Err(msg),
+        Some(filename) => {
+            create_diff_image(image1, image2, filename)?;
+            println!("Wrote diff image to {}", filename);
         },
         None => {
             let ratio = calculate_diff_ratio(image1, image2);
             println!("{}", ratio);
-            return Ok(());
         }
     }
+    Ok(())
 }
