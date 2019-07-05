@@ -4,7 +4,7 @@ extern crate image;
 use std::path::Path;
 
 use clap::ArgMatches;
-use image::{DynamicImage, GenericImage, GenericImageView};
+use image::{DynamicImage, GenericImageView, RgbImage, RgbaImage};
 
 #[derive(Debug)]
 pub struct Config<'a> {
@@ -85,32 +85,29 @@ pub fn create_diff_image(
     image2: DynamicImage,
     filename: &str,
 ) -> Result<(), String> {
-    use image::ColorType::*;
+    use image::ColorType;
 
     let w = image1.width();
     let h = image1.height();
 
-    let mut diff = match image1.color() {
-        RGB(_) => DynamicImage::new_rgb8(w, h),
-        RGBA(_) => DynamicImage::new_rgba8(w, h),
+    let pix_data : Vec<u8> = image1
+        .raw_pixels()
+        .into_iter()
+        .zip(image2.raw_pixels())
+        .map(|(p1, p2)| abs_diff(p1, p2))
+        .collect();
+
+    let diff = match image1.color() {
+        ColorType::RGB(_) => DynamicImage::ImageRgb8(RgbImage::from_raw(w, h, pix_data).unwrap()),
+        ColorType::RGBA(_) => DynamicImage::ImageRgba8(RgbaImage::from_raw(w, h, pix_data).unwrap()),
         _ => return Err(format!("color mode {:?} not yet supported", image1.color())),
     };
 
-    for x in 0..w {
-        for y in 0..h {
-            let mut rgba = [0; 4];
-            for c in 0..4 {
-                rgba[c] = abs_diff(
-                    image1.get_pixel(x, y).data[c],
-                    image2.get_pixel(x, y).data[c],
-                );
-            }
-            let new_pix = image::Pixel::from_slice(&rgba);
-            diff.put_pixel(x, y, *new_pix);
-        }
+    if let Err(msg) = diff.save(filename) {
+        return Err(msg.to_string());
     }
 
-    diff.save(filename).map_err(|msg| msg.to_string())
+    Ok(())
 }
 
 /// Run the appropriate diffing process given the configuration settings
