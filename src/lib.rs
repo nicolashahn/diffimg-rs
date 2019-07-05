@@ -85,17 +85,21 @@ pub fn create_diff_image(
     image2: DynamicImage,
     filename: &str,
 ) -> Result<(), String> {
-    use image::ColorType::{RGB, RGBA};
+    use image::ColorType;
 
     let w = image1.width();
     let h = image1.height();
 
-    let pix_data : Vec<u8> = image1.raw_pixels().into_iter()
-        .zip(image2.raw_pixels()).map(|(p1, p2)| abs_diff(p1, p2)).collect();
+    let pix_data : Vec<u8> = image1
+        .raw_pixels()
+        .into_iter()
+        .zip(image2.raw_pixels())
+        .map(|(p1, p2)| abs_diff(p1, p2))
+        .collect();
 
     let diff = match image1.color() {
-        RGB(_) => DynamicImage::ImageRgb8(RgbImage::from_raw(w, h, pix_data).unwrap()),
-        RGBA(_) => DynamicImage::ImageRgba8(RgbaImage::from_raw(w, h, pix_data).unwrap()),
+        ColorType::RGB(_) => DynamicImage::ImageRgb8(RgbImage::from_raw(w, h, pix_data).unwrap()),
+        ColorType::RGBA(_) => DynamicImage::ImageRgba8(RgbaImage::from_raw(w, h, pix_data).unwrap()),
         _ => return Err(format!("color mode {:?} not yet supported", image1.color())),
     };
 
